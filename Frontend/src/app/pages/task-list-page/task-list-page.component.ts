@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TaskService } from '../../services/task.service';
@@ -13,44 +13,42 @@ import { Task } from '../../models/task.model';
   template: `
     <section class="page-shell">
       <div class="page-toolbar">
-        <div>
-          <h1>Meine Aufgaben</h1>
-          <p>Alle Aufgaben im Überblick mit Status, Kategorie und Priorität.</p>
-        </div>
-        <button type="button" *ngIf="roleService.hasUpdate()" routerLink="/tasks/new">Neue Aufgabe</button>
+        <h1>Meine Aufgaben</h1>
+        <button *ngIf="role.hasUpdate()" routerLink="/tasks/new">Neu</button>
       </div>
-      <div *ngIf="tasks.length; else emptyState">
-        <app-task-card *ngFor="let task of tasks" [task]="task"></app-task-card>
+
+      <div *ngIf="tasks.length; else empty">
+        <app-task-card
+          *ngFor="let t of tasks"
+          [task]="t"
+          (deleted)="load()">
+        </app-task-card>
       </div>
-      <ng-template #emptyState>
-        <div class="empty-state">
-          <p>Keine Aufgaben gefunden. Erstellen Sie Ihre erste Aufgabe.</p>
-        </div>
+
+      <ng-template #empty>
+        <p>Keine Aufgaben gefunden.</p>
       </ng-template>
     </section>
   `,
   styles: [
-    ".page-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }",
-    "button { background: #457b9d; color: #fff; padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer; }",
-    ".empty-state { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 8px 20px rgba(15,23,42,0.08); text-align: center; }"
+    ".page-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }",
+    "button { background: #457b9d; color: #fff; padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer; }"
   ]
 })
 export class TaskListPageComponent implements OnInit {
+  private readonly service = inject(TaskService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  readonly role = inject(RoleService);
+
   tasks: Task[] = [];
 
-  constructor(
-    private taskService: TaskService,
-    public roleService: RoleService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
   ngOnInit(): void {
-    this.loadTasks();
+    this.load();
   }
 
-  private loadTasks(): void {
-    this.taskService.getAll().subscribe((tasks) => {
-      this.tasks = tasks;
+  load(): void {
+    this.service.getAll().subscribe(d => {
+      this.tasks = d;
       this.cdr.detectChanges();
     });
   }

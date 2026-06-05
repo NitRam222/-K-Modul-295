@@ -63,6 +63,7 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setPrincipalClaimName("preferred_username");
 
         // Custom converter für realm_access
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {

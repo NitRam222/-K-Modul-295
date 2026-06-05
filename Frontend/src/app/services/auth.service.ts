@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { OAuthService, AuthConfig, OAuthEvent } from 'angular-oauth2-oidc';
+import { Injectable, inject } from '@angular/core';
+import { OAuthService, AuthConfig } from 'angular-oauth2-oidc';
 import { environment } from '../../environments/environment';
 
 const authConfig: AuthConfig = {
@@ -17,100 +17,71 @@ const authConfig: AuthConfig = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private oauthService: OAuthService) {
+  private readonly oauthService = inject(OAuthService);
+
+  constructor() {
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
   }
 
-  initialize(): Promise<boolean> {
+  initialize() {
     return this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => true).catch(() => true);
   }
 
-  login(): void {
-    this.oauthService.initCodeFlow();
-  }
+  login() { this.oauthService.initCodeFlow(); }
+  logout() { this.oauthService.logOut(); }
 
-  logout(): void {
-    this.oauthService.logOut();
-  }
-
-  get accessToken(): string | null {
-    return this.oauthService.getAccessToken() || null;
-  }
-
-  get isAuthenticated(): boolean {
-    return this.oauthService.hasValidAccessToken();
-  }
-
-  get identityClaims(): any {
-    return this.oauthService.getIdentityClaims();
-  }
-
-  private parseTokenClaims(token: string | null): any {
-    if (!token) {
-      return null;
-    }
-
-    try {
-      const base64 = token.split('.')[1];
-      const json = decodeURIComponent(
-        Array.prototype.map
-          .call(atob(base64.replace(/-/g, '+').replace(/_/g, '/')), (c: string) =>
-            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-          )
-          .join('')
-      );
-      return JSON.parse(json);
-    } catch {
-      return null;
-    }
-  }
+  get accessToken() { return this.oauthService.getAccessToken(); }
+  get isAuthenticated() { return this.oauthService.hasValidAccessToken(); }
+  get identityClaims(): any { return this.oauthService.getIdentityClaims(); }
 
   get accessTokenClaims(): any {
-    return this.parseTokenClaims(this.accessToken);
+    const token = this.accessToken;
+    if (!token) return null;
+    try {
+      let base64Url = token.split('.')[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) base64 += '=';
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(jsonPayload);
+    } catch { return null; }
   }
 
-  get username(): string {
-    return this.identityClaims?.preferred_username || this.identityClaims?.name || this.identityClaims?.sub || this.identityClaims?.email ||
-           this.accessTokenClaims?.preferred_username || this.accessTokenClaims?.name || this.accessTokenClaims?.sub || this.accessTokenClaims?.email || '';
+  get username() {
+    const c = this.identityClaims || this.accessTokenClaims;
+    return c?.preferred_username || c?.name || c?.sub || '';
   }
 
-  get displayName(): string {
-    return this.identityClaims?.name || this.identityClaims?.preferred_username || this.identityClaims?.email || this.identityClaims?.sub ||
-           this.accessTokenClaims?.name || this.accessTokenClaims?.preferred_username || this.accessTokenClaims?.email || this.accessTokenClaims?.sub || 'Gast';
+  get displayName() {
+    const c = this.identityClaims || this.accessTokenClaims;
+    return c?.name || c?.preferred_username || 'Gast';
   }
 
-  get email(): string {
+  get email() {
     return this.identityClaims?.email || this.accessTokenClaims?.email || '';
   }
 
+  get sub(): string {
+    const c = this.accessTokenClaims || this.identityClaims;
+    return c?.sub || '';
+  }
+
   get roles(): string[] {
-    const claims = this.accessTokenClaims || this.identityClaims;
-    const roleSet = new Set<string>();
-
-    const addRoles = (roles: any) => {
-      if (Array.isArray(roles)) {
-        roles.forEach((role) => {
-          if (role) {
-            roleSet.add(String(role).toLowerCase());
-          }
-        });
-      }
+    const c = this.accessTokenClaims || this.identityClaims;
+    if (!c) return [];
+    const roles = new Set<string>();
+    const add = (r: any) => {
+      if (Array.isArray(r)) r.forEach(v => roles.add(String(v).toLowerCase()));
+      else if (typeof r === 'string') roles.add(r.toLowerCase());
     };
-
-    addRoles(claims?.realm_access?.roles);
-
-    const resourceAccess = claims?.resource_access;
-    if (resourceAccess && typeof resourceAccess === 'object') {
-      Object.values(resourceAccess).forEach((client: any) => {
-        addRoles(client?.roles);
-      });
+    add(c.realm_access?.roles);
+    if (c.resource_access) {
+      Object.values(c.resource_access).forEach((cl: any) => add(cl?.roles));
     }
-
-    return Array.from(roleSet);
+    add(c.roles);
+    add(c.role);
+    return Array.from(roles);
   }
 
-  hasRole(role: string): boolean {
-    return this.roles.includes(role.toLowerCase());
-  }
+  hasRole(role: string) { return this.roles.includes(role.toLowerCase()); }
 }

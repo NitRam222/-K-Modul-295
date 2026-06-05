@@ -1,19 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoleService {
-  constructor(private authService: AuthService) {}
+  private readonly auth = inject(AuthService);
 
   hasRead(): boolean {
-    return this.authService.hasRole('read');
+    return this.auth.hasRole('read');
   }
 
   hasUpdate(): boolean {
-    return this.authService.hasRole('update');
+    return this.auth.hasRole('update');
   }
 
   isAdmin(): boolean {
-    return this.authService.hasRole('admin');
+    return this.auth.hasRole('admin');
   }
 }

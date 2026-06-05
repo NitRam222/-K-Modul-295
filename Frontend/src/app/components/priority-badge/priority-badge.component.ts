@@ -6,15 +6,7 @@ import { Priority } from '../../models/priority.model';
   selector: 'app-priority-badge',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <span class="priority-badge" [style.background]="priority?.color || '#4a90e2'">
-      {{ priority?.level || 'Priorität' }}
-    </span>
-  `,
-  styles: [
-    ".priority-badge { display: inline-flex; padding: 4px 10px; border-radius: 999px; color: #fff; font-size: 0.8rem; text-transform: uppercase; letter-spacing: .04em; }"
-  ]
+  template: `<span class="badge" [style.background]="priority?.color || '#444'">{{ priority?.level || 'Prio' }}</span>`,
+  styles: [".badge { padding: 4px 10px; border-radius: 99px; color: #fff; font-size: 0.7rem; }"]
 })
-export class PriorityBadgeComponent {
-  @Input() priority?: Priority;
-}
+export class PriorityBadgeComponent { @Input() priority?: Priority; }

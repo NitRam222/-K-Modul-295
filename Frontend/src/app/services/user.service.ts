@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -7,9 +7,8 @@ import { Task } from '../models/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.backendBaseUrl}users`;
-
-  constructor(private http: HttpClient) {}
 
   getProfile(): Observable<User> {
     return this.http.get<User>(`${this.baseUrl}/profile`);

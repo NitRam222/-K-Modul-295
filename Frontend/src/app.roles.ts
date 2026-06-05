@@ -1,5 +1,5 @@
-export class AppRoles {
-  static Read = 'read';
-  static Update = 'update';
-  static Admin = 'admin';
-}
+export const AppRoles = {
+  Read: 'read',
+  Update: 'update',
+  Admin: 'admin'
+};

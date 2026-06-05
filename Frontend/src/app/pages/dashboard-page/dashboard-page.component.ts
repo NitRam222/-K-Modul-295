@@ -1,10 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TaskService } from '../../services/task.service';
 import { CategoryService } from '../../services/category.service';
 import { PriorityService } from '../../services/priority.service';
-import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -12,10 +11,8 @@ import { UserService } from '../../services/user.service';
   imports: [CommonModule, RouterModule],
   template: `
     <section class="page-shell">
-      <div class="hero">
-        <h1>Dashboard</h1>
-        <p>Übersicht Ihrer Aufgaben, Kategorien und Prioritäten.</p>
-      </div>
+      <h1>Dashboard</h1>
+      <p>Übersicht Ihrer Aufgaben, Kategorien und Prioritäten.</p>
       <div class="tiles">
         <article class="tile">
           <h2>{{ taskCount }}</h2>
@@ -23,51 +20,38 @@ import { UserService } from '../../services/user.service';
           <a routerLink="/tasks">Aufgaben ansehen</a>
         </article>
         <article class="tile">
-          <h2>{{ categoryCount }}</h2>
+          <h2>{{ catCount }}</h2>
           <p>Kategorien</p>
-          <a routerLink="/categories">Kategorien verwalten</a>
+          <a routerLink="/categories">Verwalten</a>
         </article>
         <article class="tile">
-          <h2>{{ priorityCount }}</h2>
+          <h2>{{ prioCount }}</h2>
           <p>Prioritäten</p>
-          <a routerLink="/priorities">Prioritäten anzeigen</a>
+          <a routerLink="/priorities">Anzeigen</a>
         </article>
       </div>
     </section>
   `,
   styles: [
-    ".hero { margin-bottom: 28px; }",
-    ".tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }",
+    ".tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-top: 20px; }",
     ".tile { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 8px 24px rgba(15,23,42,0.08); }",
-    ".tile h2 { margin: 0 0 12px; font-size: 2.4rem; color: #1d3557; }",
-    ".tile a { color: #1d3557; font-weight: 600; text-decoration: none; }"
+    ".tile h2 { margin: 0; font-size: 2.4rem; color: #1d3557; }",
+    ".tile a { color: #1d3557; font-weight: 600; text-decoration: none; display: block; margin-top: 12px; }"
   ]
 })
 export class DashboardPageComponent implements OnInit {
+  private readonly taskService = inject(TaskService);
+  private readonly catService = inject(CategoryService);
+  private readonly prioService = inject(PriorityService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   taskCount = 0;
-  categoryCount = 0;
-  priorityCount = 0;
+  catCount = 0;
+  prioCount = 0;
 
-  constructor(
-    private taskService: TaskService,
-    private categoryService: CategoryService,
-    private priorityService: PriorityService,
-    private userService: UserService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-    this.taskService.getAll().subscribe((tasks) => {
-      this.taskCount = tasks.length;
-      this.cdr.detectChanges();
-    });
-    this.categoryService.getAll().subscribe((categories) => {
-      this.categoryCount = categories.length;
-      this.cdr.detectChanges();
-    });
-    this.priorityService.getAll().subscribe((priorities) => {
-      this.priorityCount = priorities.length;
-      this.cdr.detectChanges();
-    });
+  ngOnInit() {
+    this.taskService.getAll().subscribe(d => { this.taskCount = d.length; this.cdr.detectChanges(); });
+    this.catService.getAll().subscribe(d => { this.catCount = d.length; this.cdr.detectChanges(); });
+    this.prioService.getAll().subscribe(d => { this.prioCount = d.length; this.cdr.detectChanges(); });
   }
 }
