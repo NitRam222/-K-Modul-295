@@ -17,10 +17,12 @@ import { Priority } from '../../models/priority.model';
         <button type="submit">Hinzufügen</button>
       </form>
       <ul class="list">
-        <li *ngFor="let p of priorities">
-          <span>{{ p.level }}</span>
-          <button class="danger" (click)="deletePriority(p.id)">Löschen</button>
-        </li>
+        @for (p of priorities; track p.id) {
+          <li>
+            <span>{{ p.level }}</span>
+            <button class="danger" (click)="deletePriority(p.id)">Löschen</button>
+          </li>
+        }
       </ul>
     </section>
   `,

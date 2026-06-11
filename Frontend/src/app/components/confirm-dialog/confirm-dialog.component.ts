@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
     <div class="confirm">
       <p>{{ message }}</p>
       <div class="actions">
-        <button (click)="cancel.emit()">Nein</button>
+        <button (click)="cancelAction.emit()">Nein</button>
         <button class="danger" (click)="confirm.emit()">Ja</button>
       </div>
     </div>
@@ -24,5 +24,5 @@ import { CommonModule } from '@angular/common';
 export class ConfirmDialogComponent {
   @Input() message = 'Sicher?';
   @Output() confirm = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() cancelAction = new EventEmitter<void>();
 }

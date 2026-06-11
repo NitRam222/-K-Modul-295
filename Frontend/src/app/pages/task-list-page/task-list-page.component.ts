@@ -14,20 +14,23 @@ import { Task } from '../../models/task.model';
     <section class="page-shell">
       <div class="page-toolbar">
         <h1>Meine Aufgaben</h1>
-        <button *ngIf="role.hasUpdate()" routerLink="/tasks/new">Neu</button>
+        @if (role.hasUpdate()) {
+          <button routerLink="/tasks/new">Neu</button>
+        }
       </div>
 
-      <div *ngIf="tasks.length; else empty">
-        <app-task-card
-          *ngFor="let t of tasks"
-          [task]="t"
-          (deleted)="load()">
-        </app-task-card>
-      </div>
-
-      <ng-template #empty>
+      @if (tasks.length) {
+        <div>
+          @for (t of tasks; track t.id) {
+            <app-task-card
+              [task]="t"
+              (deleted)="load()">
+            </app-task-card>
+          }
+        </div>
+      } @else {
         <p>Keine Aufgaben gefunden.</p>
-      </ng-template>
+      }
     </section>
   `,
   styles: [

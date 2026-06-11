@@ -44,7 +44,7 @@ describe('ConfirmDialogComponent', () => {
   it('should emit cancel when clicking Nein', () => {
     fixture.detectChanges();
 
-    const emitSpy = vi.spyOn(component.cancel, 'emit');
+    const emitSpy = vi.spyOn(component.cancelAction, 'emit');
 
     const buttons = fixture.debugElement.queryAll(By.css('button'));
     buttons[0].triggerEventHandler('click', null);

@@ -11,12 +11,16 @@ import { User } from '../../models/user.model';
   template: `
     <section class="page-shell">
       <h1>Mein Profil</h1>
-      <div class="profile-card" *ngIf="user">
-        <h2>{{ user.displayName || user.username }}</h2>
-        <p><strong>Benutzername:</strong> {{ user.username }}</p>
-        <p><strong>E-Mail:</strong> {{ user.email || 'N/A' }}</p>
-      </div>
-      <div *ngIf="error" class="profile-card error">{{ error }}</div>
+      @if (user) {
+        <div class="profile-card">
+          <h2>{{ user.displayName || user.username }}</h2>
+          <p><strong>Benutzername:</strong> {{ user.username }}</p>
+          <p><strong>E-Mail:</strong> {{ user.email || 'N/A' }}</p>
+        </div>
+      }
+      @if (error) {
+        <div class="profile-card error">{{ error }}</div>
+      }
     </section>
   `,
   styles: [

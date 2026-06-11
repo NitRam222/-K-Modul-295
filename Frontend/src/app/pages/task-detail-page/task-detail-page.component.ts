@@ -13,24 +13,29 @@ import { PriorityBadgeComponent } from '../../components/priority-badge/priority
   standalone: true,
   imports: [CommonModule, RouterModule, CategoryBadgeComponent, PriorityBadgeComponent],
   template: `
-    <section class="page-shell" *ngIf="task; else loading">
-      <div class="detail-header">
-        <h1>{{ task.title }}</h1>
-        <div class="action-row" *ngIf="canEdit">
-          <button [routerLink]="['/tasks/edit', task.id]">Edit</button>
-          <button class="secondary" (click)="toggle()">{{ task.status === 'DONE' ? 'TODO' : 'Done' }}</button>
-          <button class="danger" (click)="delete()">Del</button>
+    @if (task) {
+      <section class="page-shell">
+        <div class="detail-header">
+          <h1>{{ task.title }}</h1>
+          @if (canEdit) {
+            <div class="action-row">
+              <button [routerLink]="['/tasks/edit', task.id]">Edit</button>
+              <button class="secondary" (click)="toggle()">{{ task.status === 'DONE' ? 'TODO' : 'Done' }}</button>
+              <button class="danger" (click)="delete()">Del</button>
+            </div>
+          }
         </div>
-      </div>
-      <p>{{ task.description }}</p>
-      <div class="detail-meta">
-        <app-category-badge [category]="task.category"></app-category-badge>
-        <app-priority-badge [priority]="task.priority"></app-priority-badge>
-        <span>{{ task.status }}</span>
-        <span>Owner: {{ task.owner?.username || task.user?.username }}</span>
-      </div>
-    </section>
-    <ng-template #loading><p>Lade...</p></ng-template>
+        <p>{{ task.description }}</p>
+        <div class="detail-meta">
+          <app-category-badge [category]="task.category"></app-category-badge>
+          <app-priority-badge [priority]="task.priority"></app-priority-badge>
+          <span>{{ task.status }}</span>
+          <span>Owner: {{ task.owner?.username || task.user?.username }}</span>
+        </div>
+      </section>
+    } @else {
+      <p>Lade...</p>
+    }
   `,
   styles: [
     ".detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }",

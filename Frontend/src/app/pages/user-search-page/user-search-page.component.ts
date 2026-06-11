@@ -17,16 +17,24 @@ import { TaskCardComponent } from '../../components/task-card/task-card.componen
         <input [(ngModel)]="query" name="q" placeholder="Suche..." />
         <button type="submit">Suchen</button>
       </form>
-      <ul class="list" *ngIf="users.length">
-        <li *ngFor="let u of users" (click)="loadTasks(u)">
-          <strong>{{ u.displayName || u.username }}</strong>
-          <small>{{ u.email }}</small>
-        </li>
-      </ul>
-      <div *ngIf="tasks.length" class="tasks">
-        <h2>Aufgaben von {{ selUser }}</h2>
-        <app-task-card *ngFor="let t of tasks" [task]="t" [clickable]="false" (deleted)="search()"></app-task-card>
-      </div>
+      @if (users.length) {
+        <ul class="list">
+          @for (u of users; track u.username) {
+            <li tabindex="0" role="button" (click)="loadTasks(u)" (keydown.enter)="loadTasks(u)" (keydown.space)="$event.preventDefault(); loadTasks(u)">
+              <strong>{{ u.displayName || u.username }}</strong>
+              <small>{{ u.email }}</small>
+            </li>
+          }
+        </ul>
+      }
+      @if (tasks.length) {
+        <div class="tasks">
+          <h2>Aufgaben von {{ selUser }}</h2>
+          @for (t of tasks; track t.id) {
+            <app-task-card [task]="t" [clickable]="false" (deleted)="search()"></app-task-card>
+          }
+        </div>
+      }
     </section>
   `,
   styles: [

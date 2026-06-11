@@ -10,14 +10,16 @@ import { AuthService } from '../../services/auth.service';
   template: `
     <nav class="navbar">
       <a class="brand" routerLink="/tasks">SmartTask</a>
-      <div class="links" *ngIf="auth.isAuthenticated">
-        <a routerLink="/tasks">Aufgaben</a>
-        <a routerLink="/categories">Kategorien</a>
-        <a routerLink="/priorities">Prioritäten</a>
-        <a routerLink="/users/search">Benutzer</a>
-        <a routerLink="/profile">Profil</a>
-        <button (click)="auth.logout()">Logout</button>
-      </div>
+      @if (auth.isAuthenticated) {
+        <div class="links">
+          <a routerLink="/tasks">Aufgaben</a>
+          <a routerLink="/categories">Kategorien</a>
+          <a routerLink="/priorities">Prioritäten</a>
+          <a routerLink="/users/search">Benutzer</a>
+          <a routerLink="/profile">Profil</a>
+          <button (click)="auth.logout()">Logout</button>
+        </div>
+      }
     </nav>
   `,
   styles: [

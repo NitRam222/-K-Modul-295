@@ -23,10 +23,12 @@ import { TaskService } from '../../services/task.service';
         <app-category-badge [category]="task?.category"></app-category-badge>
         <app-priority-badge [priority]="task?.priority"></app-priority-badge>
       </div>
-      <div class="card-actions" *ngIf="canEdit && task?.id">
-        <button class="btn-edit" [routerLink]="['/tasks/edit', task?.id]" (click)="$event.stopPropagation()">Edit</button>
-        <button class="btn-danger" (click)="deleteTask($event)">Delete</button>
-      </div>
+      @if (canEdit && task?.id) {
+        <div class="card-actions">
+          <button class="btn-edit" [routerLink]="['/tasks/edit', task?.id]" (click)="$event.stopPropagation()">Edit</button>
+          <button class="btn-danger" (click)="deleteTask($event)">Delete</button>
+        </div>
+      }
       <footer>
         <small>Owner: {{ task?.owner?.username || task?.user?.username }}</small>
       </footer>

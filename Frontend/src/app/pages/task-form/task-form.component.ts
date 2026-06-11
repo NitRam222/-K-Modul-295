@@ -16,25 +16,29 @@ import { Priority } from '../../models/priority.model';
     <section class="page-shell">
       <h1>{{ editMode ? 'Edit Task' : 'New Task' }}</h1>
       <form [formGroup]="form" (ngSubmit)="submit()" class="task-form">
-        <label>Titel</label> <input formControlName="title" />
-        <label>Beschreibung</label> <textarea formControlName="description"></textarea>
-        <label>Status</label>
-        <select formControlName="status">
+        <label for="titleInput">Titel</label> <input id="titleInput" formControlName="title" />
+        <label for="descriptionInput">Beschreibung</label> <textarea id="descriptionInput" formControlName="description"></textarea>
+        <label for="statusSelect">Status</label>
+        <select id="statusSelect" formControlName="status">
           <option value="TODO">TODO</option>
           <option value="IN_PROGRESS">Progress</option>
           <option value="DONE">Done</option>
         </select>
-        <label>Kategorie</label>
-        <select formControlName="categoryId">
+        <label for="categorySelect">Kategorie</label>
+        <select id="categorySelect" formControlName="categoryId">
           <option value="">Keine</option>
-          <option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</option>
+          @for (c of categories; track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
         </select>
-        <label>Priorität</label>
-        <select formControlName="priorityId">
+        <label for="prioritySelect">Priorität</label>
+        <select id="prioritySelect" formControlName="priorityId">
           <option value="">Keine</option>
-          <option *ngFor="let p of priorities" [value]="p.id">{{ p.level }}</option>
+          @for (p of priorities; track p.id) {
+            <option [value]="p.id">{{ p.level }}</option>
+          }
         </select>
-        <label>Datum</label> <input type="date" formControlName="dueDate" />
+        <label for="dueDateInput">Datum</label> <input id="dueDateInput" type="date" formControlName="dueDate" />
         <div class="form-actions">
           <button type="submit" [disabled]="form.invalid">Save</button>
           <button type="button" class="secondary" routerLink="/tasks">Cancel</button>

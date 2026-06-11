@@ -17,10 +17,12 @@ import { Category } from '../../models/category.model';
         <button type="submit">Hinzufügen</button>
       </form>
       <ul class="list">
-        <li *ngFor="let c of categories">
-          <span>{{ c.name }}</span>
-          <button class="danger" (click)="deleteCategory(c.id)">Löschen</button>
-        </li>
+        @for (c of categories; track c.id) {
+          <li>
+            <span>{{ c.name }}</span>
+            <button class="danger" (click)="deleteCategory(c.id)">Löschen</button>
+          </li>
+        }
       </ul>
     </section>
   `,
