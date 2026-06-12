@@ -29,14 +29,14 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('READ', 'UPDATE')")
+    @PreAuthorize("hasAnyRole('READ', 'UPDATE', 'ADMIN')")
     @Operation(summary = "Alle Kategorien abrufen", description = "Liefert alle verfügbaren Kategorien")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Kategorien erfolgreich abgerufen"),
         @ApiResponse(responseCode = "401", description = "Authentifizierung erforderlich")
     })
-    public ResponseEntity<List<Category>> getAllCategories() {
-        List<Category> categories = categoryService.findAllCategories();
+    public ResponseEntity<List<Category>> getAllCategories(@RequestParam(required = false) Long userId) {
+        List<Category> categories = categoryService.findAllCategories(userId);
         return ResponseEntity.ok(categories);
     }
 

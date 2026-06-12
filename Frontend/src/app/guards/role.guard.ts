@@ -9,6 +9,7 @@ export const RoleGuard: CanActivateFn = (route) => {
   return (
     !roles ||
     roles.some((r) => auth.hasRole(r)) ||
+    auth.hasRole('admin') ||
     router.createUrlTree(['/tasks'])
   );
 };

@@ -54,7 +54,7 @@ public class TaskService {
     public Optional<Task> findTaskById(Long id) {
         User currentUser = userService.getCurrentUser();
         Optional<Task> task = taskRepository.findById(id);
-        if (task.isPresent() && task.get().getUser().getId().equals(currentUser.getId())) {
+        if (task.isPresent() && (task.get().getUser().getId().equals(currentUser.getId()) || "ADMIN".equalsIgnoreCase(currentUser.getRole()))) {
             return task;
         }
         return Optional.empty();
@@ -64,27 +64,25 @@ public class TaskService {
         return taskRepository.findByUserId(userId);
     }
 
-    private Category resolveCategoryForCurrentUser(Category category) {
+    private Category resolveCategoryForTaskOwner(Category category, User taskOwner) {
         if (category == null || category.getId() == null) {
             return null;
         }
-        User currentUser = userService.getCurrentUser();
         Category existingCategory = categoryRepository.findById(category.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Kategorie nicht gefunden"));
-        if (!existingCategory.getUser().getId().equals(currentUser.getId())) {
+        if (!existingCategory.getUser().getId().equals(taskOwner.getId())) {
             throw new IllegalArgumentException("Kategorie nicht gefunden");
         }
         return existingCategory;
     }
 
-    private Priority resolvePriorityForCurrentUser(Priority priority) {
+    private Priority resolvePriorityForTaskOwner(Priority priority, User taskOwner) {
         if (priority == null || priority.getId() == null) {
             return null;
         }
-        User currentUser = userService.getCurrentUser();
         Priority existingPriority = priorityRepository.findById(priority.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Priorität nicht gefunden"));
-        if (!existingPriority.getUser().getId().equals(currentUser.getId())) {
+        if (!existingPriority.getUser().getId().equals(taskOwner.getId())) {
             throw new IllegalArgumentException("Priorität nicht gefunden");
         }
         return existingPriority;
@@ -98,8 +96,8 @@ public class TaskService {
 
         User currentUser = userService.getCurrentUser();
         task.setUser(currentUser);
-        task.setCategory(resolveCategoryForCurrentUser(task.getCategory()));
-        task.setPriority(resolvePriorityForCurrentUser(task.getPriority()));
+        task.setCategory(resolveCategoryForTaskOwner(task.getCategory(), currentUser));
+        task.setPriority(resolvePriorityForTaskOwner(task.getPriority(), currentUser));
 
         if (task.getStatus() == null || task.getStatus().isBlank()) {
             task.setStatus("TODO");
@@ -120,7 +118,7 @@ public class TaskService {
         Task existingTask = taskRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Aufgabe nicht gefunden"));
 
-        if (!existingTask.getUser().getId().equals(currentUser.getId())) {
+        if (!existingTask.getUser().getId().equals(currentUser.getId()) && !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
             throw new SecurityException("Keine Berechtigung zur Bearbeitung dieser Aufgabe");
         }
 
@@ -146,11 +144,11 @@ public class TaskService {
         }
 
         if (updatedTask.getCategory() != null) {
-            existingTask.setCategory(resolveCategoryForCurrentUser(updatedTask.getCategory()));
+            existingTask.setCategory(resolveCategoryForTaskOwner(updatedTask.getCategory(), existingTask.getUser()));
         }
 
         if (updatedTask.getPriority() != null) {
-            existingTask.setPriority(resolvePriorityForCurrentUser(updatedTask.getPriority()));
+            existingTask.setPriority(resolvePriorityForTaskOwner(updatedTask.getPriority(), existingTask.getUser()));
         }
 
         return taskRepository.save(existingTask);
@@ -163,7 +161,7 @@ public class TaskService {
         Task task = taskRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Aufgabe nicht gefunden"));
 
-        if (!task.getUser().getId().equals(currentUser.getId())) {
+        if (!task.getUser().getId().equals(currentUser.getId()) && !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
             throw new SecurityException("Keine Berechtigung zum Löschen dieser Aufgabe");
         }
 

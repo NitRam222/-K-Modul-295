@@ -1,10 +1,11 @@
 <section class="page-shell">
   <h1>{{ editMode ? "Edit Task" : "New Task" }}</h1>
+
   <form [formGroup]="form" (ngSubmit)="submit()" class="task-form">
     <div class="form-group">
-      <label for="titleInput"
-        >Titel <span class="required-asterisk">*</span></label
-      >
+      <label for="titleInput">
+        Titel <span class="required-asterisk">*</span>
+      </label>
       <input
         id="titleInput"
         formControlName="title"
@@ -20,9 +21,9 @@
     </div>
 
     <div class="form-group">
-      <label for="descriptionInput"
-        >Beschreibung <span class="required-asterisk">*</span></label
-      >
+      <label for="descriptionInput">
+        Beschreibung <span class="required-asterisk">*</span>
+      </label>
       <textarea
         id="descriptionInput"
         formControlName="description"
@@ -49,9 +50,13 @@
     <div class="form-group">
       <label for="categorySelect">Kategorie</label>
       <select id="categorySelect" formControlName="categoryId">
-        <option value="">Keine</option>
-        @for (c of categories; track c.id) {
-          <option [value]="c.id">{{ c.name }}</option>
+        @if (loadingOptions) {
+          <option value="">Kategorien werden geladen...</option>
+        } @else {
+          <option value="">Keine</option>
+          @for (c of categories; track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
         }
       </select>
     </div>
@@ -59,9 +64,13 @@
     <div class="form-group">
       <label for="prioritySelect">Priorität</label>
       <select id="prioritySelect" formControlName="priorityId">
-        <option value="">Keine</option>
-        @for (p of priorities; track p.id) {
-          <option [value]="p.id">{{ p.level }}</option>
+        @if (loadingOptions) {
+          <option value="">Prioritäten werden geladen...</option>
+        } @else {
+          <option value="">Keine</option>
+          @for (p of priorities; track p.id) {
+            <option [value]="p.id">{{ p.level }}</option>
+          }
         }
       </select>
     </div>
@@ -72,7 +81,9 @@
     </div>
 
     <div class="form-actions">
-      <button type="submit" [disabled]="form.invalid">Save</button>
+      <button type="submit" [disabled]="form.invalid || loadingOptions">
+        Save
+      </button>
       <button type="button" class="secondary" routerLink="/tasks">
         Cancel
       </button>

@@ -19,8 +19,15 @@ public class CategoryService {
     private UserService userService;
 
     // Alle Kategorien abrufen
-    public List<Category> findAllCategories() {
+    public List<Category> findAllCategories(Long userId) {
         User currentUser = userService.getCurrentUser();
+        if (userId != null) {
+            if (currentUser.getId().equals(userId) || "ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+                return categoryRepository.findByUserId(userId);
+            } else {
+                throw new SecurityException("Keine Berechtigung zur Einsicht dieser Kategorien");
+            }
+        }
         return categoryRepository.findByUserId(currentUser.getId());
     }
 

@@ -29,45 +29,45 @@ public class PriorityController {
     private PriorityService priorityService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('READ', 'UPDATE')")
+    @PreAuthorize("hasAnyRole('READ', 'UPDATE', 'ADMIN')")
     @Operation(summary = "Alle Prioritäten abrufen", description = "Liefert alle verfügbaren Prioritätsstufen")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Prioritäten erfolgreich abgerufen"),
-        @ApiResponse(responseCode = "401", description = "Authentifizierung erforderlich")
+            @ApiResponse(responseCode = "200", description = "Prioritäten erfolgreich abgerufen"),
+            @ApiResponse(responseCode = "401", description = "Authentifizierung erforderlich")
     })
-    public ResponseEntity<List<Priority>> getAllPriorities() {
-        List<Priority> priorities = priorityService.findAllPriorities();
+    public ResponseEntity<List<Priority>> getAllPriorities(@RequestParam(required = false) Long userId) {
+        List<Priority> priorities = priorityService.findAllPriorities(userId);
         return ResponseEntity.ok(priorities);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('READ', 'UPDATE')")
+    @PreAuthorize("hasAnyRole('READ', 'UPDATE', 'ADMIN')")
     @Operation(summary = "Einzelne Priorität abrufen", description = "Liefert eine spezifische Priorität anhand der ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Priorität gefunden"),
-        @ApiResponse(responseCode = "404", description = "Priorität nicht gefunden"),
-        @ApiResponse(responseCode = "401", description = "Authentifizierung erforderlich")
+            @ApiResponse(responseCode = "200", description = "Priorität gefunden"),
+            @ApiResponse(responseCode = "404", description = "Priorität nicht gefunden"),
+            @ApiResponse(responseCode = "401", description = "Authentifizierung erforderlich")
     })
     public ResponseEntity<Priority> getPriorityById(
             @Parameter(description = "Prioritäts-ID", required = true)
             @PathVariable Long id) {
         Optional<Priority> priority = priorityService.findPriorityById(id);
         return priority.map(ResponseEntity::ok)
-                       .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('UPDATE')")
+    @PreAuthorize("hasAnyRole('UPDATE', 'ADMIN')")
     @Operation(summary = "Neue Priorität erstellen", description = "Erstellt eine neue Prioritätsstufe")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Priorität erfolgreich erstellt"),
-        @ApiResponse(responseCode = "400", description = "Ungültige Anfrage"),
-        @ApiResponse(responseCode = "403", description = "Keine Berechtigung")
+            @ApiResponse(responseCode = "201", description = "Priorität erfolgreich erstellt"),
+            @ApiResponse(responseCode = "400", description = "Ungültige Anfrage"),
+            @ApiResponse(responseCode = "403", description = "Keine Berechtigung")
     })
     public ResponseEntity<Priority> createPriority(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                description = "Prioritätsobjekt",
-                content = @Content(schema = @Schema(implementation = Priority.class))
+                    description = "Prioritätsobjekt",
+                    content = @Content(schema = @Schema(implementation = Priority.class))
             )
             @RequestBody Priority priority) {
         try {
@@ -79,20 +79,20 @@ public class PriorityController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('UPDATE')")
+    @PreAuthorize("hasAnyRole('UPDATE', 'ADMIN')")
     @Operation(summary = "Priorität aktualisieren", description = "Aktualisiert eine bestehende Priorität")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Priorität erfolgreich aktualisiert"),
-        @ApiResponse(responseCode = "400", description = "Ungültige Anfrage"),
-        @ApiResponse(responseCode = "403", description = "Keine Berechtigung"),
-        @ApiResponse(responseCode = "404", description = "Priorität nicht gefunden")
+            @ApiResponse(responseCode = "200", description = "Priorität erfolgreich aktualisiert"),
+            @ApiResponse(responseCode = "400", description = "Ungültige Anfrage"),
+            @ApiResponse(responseCode = "403", description = "Keine Berechtigung"),
+            @ApiResponse(responseCode = "404", description = "Priorität nicht gefunden")
     })
     public ResponseEntity<Priority> updatePriority(
             @Parameter(description = "Prioritäts-ID", required = true)
             @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                description = "Aktualisiertes Prioritätsobjekt",
-                content = @Content(schema = @Schema(implementation = Priority.class))
+                    description = "Aktualisiertes Prioritätsobjekt",
+                    content = @Content(schema = @Schema(implementation = Priority.class))
             )
             @RequestBody Priority priority) {
         try {
@@ -104,12 +104,12 @@ public class PriorityController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('UPDATE')")
+    @PreAuthorize("hasAnyRole('UPDATE', 'ADMIN')")
     @Operation(summary = "Priorität löschen", description = "Löscht eine bestehende Priorität")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Priorität erfolgreich gelöscht"),
-        @ApiResponse(responseCode = "403", description = "Keine Berechtigung"),
-        @ApiResponse(responseCode = "404", description = "Priorität nicht gefunden")
+            @ApiResponse(responseCode = "204", description = "Priorität erfolgreich gelöscht"),
+            @ApiResponse(responseCode = "403", description = "Keine Berechtigung"),
+            @ApiResponse(responseCode = "404", description = "Priorität nicht gefunden")
     })
     public ResponseEntity<Void> deletePriority(
             @Parameter(description = "Prioritäts-ID", required = true)
@@ -122,4 +122,3 @@ public class PriorityController {
         }
     }
 }
-

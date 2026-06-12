@@ -19,8 +19,17 @@ public class PriorityService {
     private UserService userService;
 
     // Alle Prioritäten abrufen
-    public List<Priority> findAllPriorities() {
+    public List<Priority> findAllPriorities(Long userId) {
         User currentUser = userService.getCurrentUser();
+
+        if (userId != null) {
+            if (currentUser.getId().equals(userId) || "ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+                return priorityRepository.findByUserId(userId);
+            } else {
+                throw new SecurityException("Keine Berechtigung zur Einsicht dieser Prioritäten");
+            }
+        }
+
         return priorityRepository.findByUserId(currentUser.getId());
     }
 
@@ -28,7 +37,8 @@ public class PriorityService {
     public Optional<Priority> findPriorityById(Long id) {
         User currentUser = userService.getCurrentUser();
         return priorityRepository.findById(id)
-                .filter(priority -> priority.getUser().getId().equals(currentUser.getId()));
+                .filter(priority -> priority.getUser().getId().equals(currentUser.getId())
+                        || "ADMIN".equalsIgnoreCase(currentUser.getRole()));
     }
 
     // Priorität nach Level abrufen
@@ -45,6 +55,7 @@ public class PriorityService {
 
         String priorityLevel = priority.getLevel().trim();
         User currentUser = userService.getCurrentUser();
+
         if (priorityRepository.findByUserIdAndLevelIgnoreCase(currentUser.getId(), priorityLevel).isPresent()) {
             throw new IllegalArgumentException("Priorität mit diesem Level existiert bereits");
         }
@@ -57,8 +68,9 @@ public class PriorityService {
     // Priorität aktualisieren
     public Priority updatePriority(Long id, Priority updatedPriority) {
         User currentUser = userService.getCurrentUser();
+
         Priority existingPriority = priorityRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Priorität nicht gefunden"));
+                .orElseThrow(() -> new IllegalArgumentException("Priorität nicht gefunden"));
 
         if (!existingPriority.getUser().getId().equals(currentUser.getId())) {
             throw new IllegalArgumentException("Priorität nicht gefunden");
@@ -66,10 +78,12 @@ public class PriorityService {
 
         if (updatedPriority.getLevel() != null && !updatedPriority.getLevel().trim().isEmpty()) {
             String updatedLevel = updatedPriority.getLevel().trim();
-            if (!updatedLevel.equalsIgnoreCase(existingPriority.getLevel()) && 
-                priorityRepository.findByUserIdAndLevelIgnoreCase(currentUser.getId(), updatedLevel).isPresent()) {
+
+            if (!updatedLevel.equalsIgnoreCase(existingPriority.getLevel()) &&
+                    priorityRepository.findByUserIdAndLevelIgnoreCase(currentUser.getId(), updatedLevel).isPresent()) {
                 throw new IllegalArgumentException("Priorität mit diesem Level existiert bereits");
             }
+
             existingPriority.setLevel(updatedLevel);
         }
 
@@ -79,8 +93,9 @@ public class PriorityService {
     // Priorität löschen
     public void deletePriority(Long id) {
         User currentUser = userService.getCurrentUser();
+
         Priority existingPriority = priorityRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Priorität nicht gefunden"));
+                .orElseThrow(() -> new IllegalArgumentException("Priorität nicht gefunden"));
 
         if (!existingPriority.getUser().getId().equals(currentUser.getId())) {
             throw new IllegalArgumentException("Priorität nicht gefunden");
@@ -89,4 +104,3 @@ public class PriorityService {
         priorityRepository.deleteById(id);
     }
 }
-

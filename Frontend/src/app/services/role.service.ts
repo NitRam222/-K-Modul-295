@@ -10,7 +10,7 @@ export class RoleService {
   }
 
   hasUpdate(): boolean {
-    return this.auth.hasRole('update');
+    return this.auth.hasRole('update') || this.auth.hasRole('admin');
   }
 
   isAdmin(): boolean {

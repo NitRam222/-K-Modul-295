@@ -71,6 +71,7 @@ import { TaskService } from '../../services/task.service';
 export class TaskCardComponent {
   @Input() task?: Task;
   @Input() clickable = true;
+  @Input() isSearchContext = false;
   @Output() deleted = new EventEmitter<void>();
   private readonly role = inject(RoleService);
   private readonly auth = inject(AuthService);
@@ -78,6 +79,7 @@ export class TaskCardComponent {
 
   get canEdit() {
     if (this.role.isAdmin()) return true;
+    if (this.isSearchContext) return false;
     const owner = this.task?.owner || this.task?.user;
     if (!owner || !this.role.hasUpdate()) return false;
     const curUser = this.auth.username.toLowerCase();

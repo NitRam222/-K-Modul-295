@@ -29,7 +29,7 @@ public class TaskController {
     private TaskService taskService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('READ', 'UPDATE')")
+    @PreAuthorize("hasAnyRole('READ', 'UPDATE', 'ADMIN')")
     @Operation(summary = "Alle Aufgaben abrufen", description = "Liefert alle Aufgaben des angemeldeten Benutzers")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Aufgaben erfolgreich abgerufen"),
@@ -41,7 +41,7 @@ public class TaskController {
     }
 
     @GetMapping("/pending")
-    @PreAuthorize("hasAnyRole('READ', 'UPDATE', 'DEFAULT-ROLES-MYREALM')")
+    @PreAuthorize("hasAnyRole('READ', 'UPDATE', 'DEFAULT-ROLES-MYREALM', 'ADMIN')")
     @Operation(summary = "Ausstehende Aufgaben abrufen", description = "Liefert alle nicht abgeschlossenen Aufgaben")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Ausstehende Aufgaben erfolgreich abgerufen"),
@@ -53,7 +53,7 @@ public class TaskController {
     }
 
     @GetMapping("/completed")
-    @PreAuthorize("hasAnyRole('READ', 'UPDATE')")
+    @PreAuthorize("hasAnyRole('READ', 'UPDATE', 'ADMIN')")
     @Operation(summary = "Abgeschlossene Aufgaben abrufen", description = "Liefert alle abgeschlossenen Aufgaben")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Abgeschlossene Aufgaben erfolgreich abgerufen"),
@@ -65,7 +65,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('READ', 'UPDATE')")
+    @PreAuthorize("hasAnyRole('READ', 'UPDATE', 'ADMIN')")
     @Operation(summary = "Einzelne Aufgabe abrufen", description = "Liefert eine spezifische Aufgabe anhand der ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Aufgabe gefunden"),
@@ -81,7 +81,7 @@ public class TaskController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('UPDATE')")
+    @PreAuthorize("hasAnyRole('UPDATE', 'ADMIN')")
     @Operation(summary = "Neue Aufgabe erstellen", description = "Erstellt eine neue Aufgabe für den angemeldeten Benutzer")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Aufgabe erfolgreich erstellt"),
@@ -103,7 +103,7 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('UPDATE')")
+    @PreAuthorize("hasAnyRole('UPDATE', 'ADMIN')")
     @Operation(summary = "Aufgabe aktualisieren", description = "Aktualisiert eine bestehende Aufgabe")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Aufgabe erfolgreich aktualisiert"),
@@ -130,7 +130,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('UPDATE')")
+    @PreAuthorize("hasAnyRole('UPDATE', 'ADMIN')")
     @Operation(summary = "Aufgabe löschen", description = "Löscht eine bestehende Aufgabe")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Aufgabe erfolgreich gelöscht"),

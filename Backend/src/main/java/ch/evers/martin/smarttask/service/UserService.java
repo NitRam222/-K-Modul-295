@@ -111,14 +111,26 @@ public class UserService {
         Optional<User> existingUserByUsername = userRepository.findByUsername(username);
         if (existingUserByUsername.isPresent()) {
             User currentUser = existingUserByUsername.get();
+            boolean changed = false;
+
+            String role = extractHighestRole(authentication);
+
+            if (!role.equalsIgnoreCase(currentUser.getRole())) {
+                currentUser.setRole(role);
+                changed = true;
+            }
 
             if (email != null && !email.isBlank() && !email.equals(currentUser.getEmail())) {
                 Optional<User> userWithSameEmail = userRepository.findByEmail(email);
 
                 if (userWithSameEmail.isEmpty() || userWithSameEmail.get().getId().equals(currentUser.getId())) {
                     currentUser.setEmail(email);
-                    return userRepository.save(currentUser);
+                    changed = true;
                 }
+            }
+
+            if (changed) {
+                return userRepository.save(currentUser);
             }
 
             return currentUser;
@@ -136,12 +148,7 @@ public class UserService {
             return currentUser;
         }
 
-        // Rolle aus Authorities extrahieren
-        String role = authentication.getAuthorities().stream()
-                .filter(auth -> auth.getAuthority().startsWith("ROLE_"))
-                .map(auth -> auth.getAuthority().substring(5))
-                .findFirst()
-                .orElse("READ");
+        String role = extractHighestRole(authentication);
 
         User newUser = new User();
         newUser.setUsername(username);
@@ -178,5 +185,20 @@ public class UserService {
         }
 
         return userRepository.save(currentUser);
+    }
+
+    private String extractHighestRole(Authentication authentication) {
+        List<String> roles = authentication.getAuthorities().stream()
+                .filter(auth -> auth.getAuthority().startsWith("ROLE_"))
+                .map(auth -> auth.getAuthority().substring(5).toUpperCase())
+                .toList();
+
+        if (roles.contains("ADMIN")) {
+            return "ADMIN";
+        }
+        if (roles.contains("UPDATE")) {
+            return "UPDATE";
+        }
+        return roles.stream().findFirst().orElse("READ");
     }
 }
